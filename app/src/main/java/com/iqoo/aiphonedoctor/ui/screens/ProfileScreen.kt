@@ -22,7 +22,6 @@ import com.iqoo.aiphonedoctor.ui.viewmodel.MainViewModel
 
 @Composable
 fun ProfileScreen(viewModel: MainViewModel) {
-    val currentScenario by viewModel.currentScenario.collectAsState()
     val scrollState = rememberScrollState()
 
     Column(
@@ -144,52 +143,6 @@ fun ProfileScreen(viewModel: MainViewModel) {
             }
         }
 
-        // Supporting Infrastructure: Judge Scenario Selector
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = DarkCardBg),
-            shape = RoundedCornerShape(16.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, DarkCardBorder)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "⚙️ Simulation Scenario Selector",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = IqooOrange
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Switch active telemetry scenario for testing:",
-                    fontSize = 12.sp,
-                    color = TextMuted
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-
-                DemoScenario.values().forEach { scenario ->
-                    val isSelected = scenario == currentScenario
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = scenario.title,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = if (isSelected) IqooOrange else TextPrimary
-                        )
-                        RadioButton(
-                            selected = isSelected,
-                            onClick = { viewModel.updateScenario(scenario) },
-                            colors = RadioButtonDefaults.colors(selectedColor = IqooOrange)
-                        )
-                    }
-                }
-            }
-        }
     }
 }
 
