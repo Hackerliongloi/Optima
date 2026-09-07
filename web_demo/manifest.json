@@ -1,0 +1,16 @@
+{
+  "short_name": "AI Doctor",
+  "name": "iQOO AI Phone Doctor",
+  "icons": [
+    {
+      "src": "app_logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "background_color": "#0D0F12",
+  "theme_color": "#0D0F12",
+  "display": "standalone",
+  "orientation": "portrait"
+}

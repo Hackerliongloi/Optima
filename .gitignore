@@ -1,0 +1,19 @@
+# Gradle & Build output
+.gradle/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE files
+.idea/
+*.iml
+.DS_Store
+
+# Android Studio / Local config
+local.properties
+
+# Heap dumps & logs
+*.hprof
+
+# Node / Web dependencies
+node_modules/
