@@ -85,7 +85,7 @@ fun HomeScreen(viewModel: MainViewModel) {
             }
         }
 
-        // Hackathon Demo Mode Scenario Picker
+        // Simulation Scenario Picker
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = DarkCardBg),
@@ -94,7 +94,7 @@ fun HomeScreen(viewModel: MainViewModel) {
         ) {
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
-                    text = "⚡ HACKATHON DEMO SCENARIO SELECTOR",
+                    text = "⚡ SIMULATION SCENARIO SELECTOR",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = IqooOrange
@@ -288,7 +288,7 @@ fun HomeScreen(viewModel: MainViewModel) {
                         Text(text = "🎮", fontSize = 20.sp)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Gaming Health (BGMI)",
+                            text = "Gaming Health (Game)",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = TextPrimary

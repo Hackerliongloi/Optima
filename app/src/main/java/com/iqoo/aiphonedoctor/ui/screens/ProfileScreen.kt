@@ -90,7 +90,7 @@ fun ProfileScreen(viewModel: MainViewModel) {
                 ProfileDetailRow(icon = "🎮", label = "Usage Pattern", value = "Heavy Gaming & Multitasking")
                 ProfileDetailRow(icon = "🔋", label = "Battery Habit", value = "Frequent Fast Charging")
                 ProfileDetailRow(icon = "⚡", label = "Performance Mode", value = "Balanced / Monster Mode")
-                ProfileDetailRow(icon = "🎯", label = "Primary Gaming App", value = "BGMI (60 FPS Ultra)")
+                ProfileDetailRow(icon = "🎯", label = "Primary Gaming App", value = "Game (60 FPS Ultra)")
                 ProfileDetailRow(icon = "⏱️", label = "Typical Screen Time", value = "6.5 hours / day")
                 ProfileDetailRow(icon = "📊", label = "Normal Drain Baseline", value = "6.4% / hour")
 
@@ -154,14 +154,14 @@ fun ProfileScreen(viewModel: MainViewModel) {
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "⚙️ Demo Scenario Selector",
+                    text = "⚙️ Simulation Scenario Selector",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = IqooOrange
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Switch active telemetry scenario for judge testing:",
+                    text = "Switch active telemetry scenario for testing:",
                     fontSize = 12.sp,
                     color = TextMuted
                 )

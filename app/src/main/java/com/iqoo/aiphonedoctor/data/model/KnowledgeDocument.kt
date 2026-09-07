@@ -30,7 +30,7 @@ object PhoneKnowledgeBase {
         KnowledgeDocument(
             topic = "gaming_and_fps",
             keywords = listOf("gaming", "bgmi", "fps", "frame", "cod", "game"),
-            explanationPattern = "During your active BGMI session, GPU thermal output has reached %TEMP%°C with RAM usage at %RAM%. FPS stability has dropped to %FPS% FPS.",
+            explanationPattern = "During your active gaming session, GPU thermal output has reached %TEMP%°C with RAM usage at %RAM%. FPS stability has dropped to %FPS% FPS.",
             recommendedFix = "Activate iQOO Game Ultra Balanced Mode."
         )
     )

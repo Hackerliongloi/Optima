@@ -82,7 +82,7 @@ class MainViewModel : ViewModel() {
         "Why is my phone lagging?",
         "Why is my battery draining so fast?",
         "Why is my phone getting hot?",
-        "Why is BGMI dropping FPS?"
+        "Why is the game dropping FPS?"
     )
 
     init {

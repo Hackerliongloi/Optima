@@ -62,7 +62,7 @@ class DiagnosisEngine {
 
             DemoScenario.GAMING_PERFORMANCE -> DiagnosisResult(
                 issueTitle = "Gaming Performance Risk",
-                issueDescription = "Predicted thermal throttling event during current BGMI gaming session.",
+                issueDescription = "Predicted thermal throttling event during current gaming session.",
                 primaryCause = "Sustained Peak GPU Thermal Load",
                 confidencePercent = 58,
                 causeBreakdown = listOf(

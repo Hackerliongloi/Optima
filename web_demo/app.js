@@ -25,15 +25,15 @@ const SCENARIOS = {
         issueTitle: "⚠️ Thermal Stress Warning",
         issueDesc: "Your device temperature is rising unusually quickly during active usage.",
         causes: [
-            { name: "Gaming Workload (BGMI)", percent: 55, icon: "🎮" },
+            { name: "Gaming Workload (Game)", percent: 55, icon: "🎮" },
             { name: "Fast Battery Charging", percent: 30, icon: "⚡" },
             { name: "Background Processing", percent: 15, icon: "⚙️" }
         ],
         explanation: "High CPU gaming demands coupled with fast charging are generating compound heat. Heavy background tasks are compounding thermal accumulation.",
         recommendation: "Switch to Balanced Thermal Profile.",
         recReason: "Reduces peak CPU heat spike and regulates charging power to quickly lower temperature.",
-        telemetryBefore: { temp: 46.5, drain: 11.4, cpu: 91, ram: 86, storage: 64, network: "Good", app: "BGMI" },
-        telemetryAfter: { temp: 40.2, drain: 7.8, cpu: 68, ram: 71, storage: 64, network: "Good", app: "BGMI (Balanced)" }
+        telemetryBefore: { temp: 46.5, drain: 11.4, cpu: 91, ram: 86, storage: 64, network: "Good", app: "Gaming App" },
+        telemetryAfter: { temp: 40.2, drain: 7.8, cpu: 68, ram: 71, storage: 64, network: "Good", app: "Gaming App (Balanced)" }
     },
     STORAGE_PRESSURE: {
         title: "Storage Pressure",
@@ -54,10 +54,10 @@ const SCENARIOS = {
     },
     GAMING_PERFORMANCE: {
         title: "Gaming Performance",
-        subtitle: "Predicted thermal throttling during BGMI session",
+        subtitle: "Predicted thermal throttling during gaming session",
         healthScore: 83,
         issueTitle: "🎮 Gaming Performance Alert",
-        issueDesc: "Predicted thermal throttling event during current BGMI gaming session.",
+        issueDesc: "Predicted thermal throttling event during current gaming session.",
         causes: [
             { name: "Sustained GPU Load", percent: 58, icon: "🎮" },
             { name: "Background Network Sync", percent: 27, icon: "📡" },
@@ -66,8 +66,8 @@ const SCENARIOS = {
         explanation: "Based on current thermal trend, gaming performance may decline within approximately 9 minutes.",
         recommendation: "Activate iQOO Game Ultra Balanced Mode.",
         recReason: "Smooths out FPS spikes, caps thermal generation, and prevents thermal throttling.",
-        telemetryBefore: { temp: 41, drain: 9.8, cpu: 85, ram: 80, storage: 60, network: "Good", app: "BGMI" },
-        telemetryAfter: { temp: 37.8, drain: 7.1, cpu: 65, ram: 68, storage: 60, network: "Good", app: "BGMI (Optimized)" }
+        telemetryBefore: { temp: 41, drain: 9.8, cpu: 85, ram: 80, storage: 60, network: "Good", app: "Gaming App" },
+        telemetryAfter: { temp: 37.8, drain: 7.1, cpu: 65, ram: 68, storage: 60, network: "Good", app: "Gaming App (Optimized)" }
     }
 };
 
@@ -218,7 +218,7 @@ function renderHomeScreen(container, scenario) {
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <span style="font-size: 15px; font-weight: 800; font-family: var(--font-heading); display: flex; align-items: center; gap: 6px;">
-                    <span>🎮</span> Gaming Health (BGMI)
+                    <span>🎮</span> Gaming Health (Game)
                 </span>
                 <span style="background: rgba(255, 204, 0, 0.15); color: var(--warning-yellow); padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 800; font-family: var(--font-heading);">
                     54 FPS
@@ -347,7 +347,7 @@ function renderChatScreen(container, scenario) {
                 <button class="chip-btn" onclick="sendQuickQuery('Why is my phone lagging?')">Why is my phone lagging?</button>
                 <button class="chip-btn" onclick="sendQuickQuery('Why is my battery draining so fast?')">Why is my battery draining?</button>
                 <button class="chip-btn" onclick="sendQuickQuery('Why is my phone getting hot?')">Why is my phone hot?</button>
-                <button class="chip-btn" onclick="sendQuickQuery('Why is BGMI dropping FPS?')">Why is BGMI dropping FPS?</button>
+                <button class="chip-btn" onclick="sendQuickQuery('Why is the game dropping FPS?')">Why is the game dropping FPS?</button>
             </div>
 
             <div class="chat-input-bar">
@@ -644,7 +644,7 @@ function renderProfileScreen(container) {
                 </div>
                 <div style="display: flex; justify-content: space-between;">
                     <span style="color: var(--text-secondary);">🎯 Primary Game:</span>
-                    <span style="font-weight: 700;">BGMI (60 FPS Ultra)</span>
+                    <span style="font-weight: 700;">Game (60 FPS Ultra)</span>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
                     <span style="color: var(--text-secondary);">⏱️ Screen Time:</span>
@@ -673,7 +673,7 @@ function renderProfileScreen(container) {
 }
 
 // ----------------------------------------------------
-// SEQUENCES FOR DEMO FLOW
+// SEQUENCES FOR SIMULATION FLOW
 // ----------------------------------------------------
 
 function startScanSequence() {
