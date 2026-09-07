@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AI Phone Doctor"
+rootProject.name = "Optima"
 include(":app")

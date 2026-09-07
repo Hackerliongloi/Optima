@@ -1,6 +1,7 @@
 package com.iqoo.aiphonedoctor.ui.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.iqoo.aiphonedoctor.data.engine.DemoDataEngine
 import com.iqoo.aiphonedoctor.data.engine.DiagnosisEngine
@@ -12,6 +13,7 @@ import com.iqoo.aiphonedoctor.data.model.HistoryItem
 import com.iqoo.aiphonedoctor.data.model.PhoneTelemetry
 import com.iqoo.aiphonedoctor.data.repository.GeminiRepository
 import com.iqoo.aiphonedoctor.data.repository.HistoryRepository
+import com.iqoo.aiphonedoctor.data.telemetry.RealTelemetryProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,17 +21,21 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val demoEngine = DemoDataEngine()
     private val diagnosisEngine = DiagnosisEngine()
-    private val ragEngine = RAGEngine()
     private val geminiRepo = GeminiRepository()
+    private val ragEngine = RAGEngine(geminiRepo)
     private val historyRepo = HistoryRepository()
+    private val realTelemetryProvider = RealTelemetryProvider(application)
+
+    private val _hasUsagePermission = MutableStateFlow(realTelemetryProvider.isUsageAccessGranted())
+    val hasUsagePermission: StateFlow<Boolean> = _hasUsagePermission.asStateFlow()
 
     private val _currentScenario = MutableStateFlow(DemoScenario.BATTERY_DRAIN)
     val currentScenario: StateFlow<DemoScenario> = _currentScenario.asStateFlow()
 
-    private val _telemetry = MutableStateFlow(demoEngine.getCurrentTelemetry())
+    private val _telemetry = MutableStateFlow(realTelemetryProvider.getRealTelemetry())
     val telemetry: StateFlow<PhoneTelemetry> = _telemetry.asStateFlow()
 
     private val _selectedTab = MutableStateFlow(0) // 0=Home, 1=Diagnose, 2=AI Doctor Chat, 3=History, 4=Profile
@@ -102,12 +108,19 @@ class MainViewModel : ViewModel() {
         _isScanning.value = false
     }
 
+    fun refreshRealTelemetry() {
+        val realTel = realTelemetryProvider.getRealTelemetry()
+        _telemetry.value = realTel
+        _hasUsagePermission.value = realTelemetryProvider.isUsageAccessGranted()
+    }
+
     fun startDiagnosis() {
         viewModelScope.launch {
             _selectedTab.value = 1 // Switch to Diagnose tab
             _isScanning.value = true
             _isVerified.value = false
             _diagnosisResult.value = null
+            refreshRealTelemetry()
 
             val scanSteps = listOf(
                 "Analyzing battery drain patterns...",
@@ -140,33 +153,27 @@ class MainViewModel : ViewModel() {
             _isFixing.value = true
 
             val fixSteps = listOf(
-                "Applying recommended action...",
-                "Restricting background process threads...",
-                "Monitoring thermal & power draw stabilization...",
-                "Comparing health trends..."
+                "Executing real Android system process optimization...",
+                "Killing heavy background app processes...",
+                "Cleaning cache & garbage collecting memory...",
+                "Re-evaluating live hardware telemetry..."
             )
 
             for (step in fixSteps) {
                 _fixProgressMessage.value = step
-                delay(450)
+                delay(400)
             }
 
-            val updatedTelemetry = demoEngine.applySimulatedFix()
-            _telemetry.value = updatedTelemetry
+            val boostResult = realTelemetryProvider.executeRealSystemBoost()
+            val cacheResult = realTelemetryProvider.executeRealCacheClean()
+            refreshRealTelemetry()
+
             _isFixing.value = false
             _isVerified.value = true
 
             val diag = _diagnosisResult.value
             if (diag != null) {
-                val savingsStr = if (_currentScenario.value == DemoScenario.BATTERY_DRAIN) {
-                    "-1.5% / hr drain"
-                } else if (_currentScenario.value == DemoScenario.THERMAL_STRESS) {
-                    "-6.3°C temp"
-                } else if (_currentScenario.value == DemoScenario.GAMING_PERFORMANCE) {
-                    "+7% stability"
-                } else {
-                    "+16 GB free"
-                }
+                val savingsStr = "$boostResult | $cacheResult"
 
                 historyRepo.addHistoryRecord(
                     issueTitle = diag.issueTitle,

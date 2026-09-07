@@ -18,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,7 +30,6 @@ import com.iqoo.aiphonedoctor.ui.theme.CyberBlack
 import com.iqoo.aiphonedoctor.ui.theme.DarkCardBg
 import com.iqoo.aiphonedoctor.ui.theme.IqooOrange
 import com.iqoo.aiphonedoctor.ui.theme.TextMuted
-import com.iqoo.aiphonedoctor.ui.theme.TextPrimary
 import com.iqoo.aiphonedoctor.ui.viewmodel.MainViewModel
 
 data class NavItem(val label: String, val icon: ImageVector, val isCenter: Boolean = false)
@@ -40,6 +38,7 @@ data class NavItem(val label: String, val icon: ImageVector, val isCenter: Boole
 fun MainAppContainer(viewModel: MainViewModel) {
     val selectedTab by viewModel.selectedTab.collectAsState()
 
+    // 5 Core Tabs: Home, Diagnose, AI Doctor Chat 🤖, History, Profile
     val navItems = listOf(
         NavItem("Home", Icons.Default.Home),
         NavItem("Diagnose", Icons.Default.MedicalServices),
@@ -59,7 +58,7 @@ fun MainAppContainer(viewModel: MainViewModel) {
                     val isSelected = selectedTab == index
 
                     if (item.isCenter) {
-                        // Glowing Prominent Center AI Doctor Button
+                        // Prominent Center AI Doctor Button
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -70,7 +69,7 @@ fun MainAppContainer(viewModel: MainViewModel) {
                                 modifier = Modifier
                                     .size(50.dp)
                                     .clip(CircleShape)
-                                    .background(IqooOrange)
+                                    .background(if (isSelected) IqooOrange else IqooOrange.copy(alpha = 0.85f))
                                     .border(2.dp, CyberBlack, CircleShape)
                                     .clickable { viewModel.selectTab(index) },
                                 contentAlignment = Alignment.Center
@@ -122,6 +121,7 @@ fun MainAppContainer(viewModel: MainViewModel) {
                 2 -> AIDoctorChatScreen(viewModel = viewModel)
                 3 -> HistoryScreen(viewModel = viewModel)
                 4 -> ProfileScreen(viewModel = viewModel)
+                else -> HomeScreen(viewModel = viewModel)
             }
         }
     }

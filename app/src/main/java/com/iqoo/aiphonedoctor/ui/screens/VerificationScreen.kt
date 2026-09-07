@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
 import com.iqoo.aiphonedoctor.ui.theme.*
 import com.iqoo.aiphonedoctor.ui.viewmodel.MainViewModel
 
@@ -51,13 +52,15 @@ fun VerificationScreen(viewModel: MainViewModel) {
                     text = fixMessage,
                     style = MaterialTheme.typography.titleLarge,
                     color = TextPrimary,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Applying optimization & collecting post-fix telemetry...",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    color = TextSecondary,
+                    textAlign = TextAlign.Center
                 )
             }
         } else if (diagnosis != null) {
@@ -76,8 +79,11 @@ fun VerificationScreen(viewModel: MainViewModel) {
                     border = androidx.compose.foundation.BorderStroke(1.dp, SuccessGreen.copy(alpha = 0.5f))
                 ) {
                     Column(
-                        modifier = Modifier.padding(20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
                         Box(
                             modifier = Modifier
@@ -93,13 +99,15 @@ fun VerificationScreen(viewModel: MainViewModel) {
                             text = "Optimization Successful",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = SuccessGreen
+                            color = SuccessGreen,
+                            textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Phone health restored & telemetry normalized",
                             fontSize = 13.sp,
-                            color = TextSecondary
+                            color = TextSecondary,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }

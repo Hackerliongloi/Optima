@@ -52,7 +52,7 @@ class GeminiRepository {
             }
 
             val requestBody = jsonBody.toString().toRequestBody("application/json".toMediaType())
-            val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$currentKey"
+            val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=$currentKey"
 
             val request = Request.Builder()
                 .url(url)
@@ -78,10 +78,78 @@ class GeminiRepository {
                 }
             }
         } catch (e: Exception) {
-            // Graceful fallback on network error, invalid key, or offline state
             e.printStackTrace()
         }
 
         return@withContext diagnosis.aiExplanationText
     }
+
+    suspend fun generateRAGAnswer(prompt: String): String? = withContext(Dispatchers.IO) {
+        val currentKey = apiKey
+        if (currentKey.isNullOrBlank()) return@withContext null
+
+        try {
+            val jsonBody = JSONObject().apply {
+                put("contents", JSONArray().apply {
+                    put(JSONObject().apply {
+                        put("parts", JSONArray().apply {
+                            put(JSONObject().put("text", prompt))
+                        })
+                    })
+                })
+            }
+
+            val requestBody = jsonBody.toString().toRequestBody("application/json".toMediaType())
+            
+            // Try gemini-3.5-flash-lite
+            val url35lite = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=$currentKey"
+            val request35lite = Request.Builder().url(url35lite).post(requestBody).build()
+
+            val response35lite = client.newCall(request35lite).execute()
+            if (response35lite.isSuccessful) {
+                val responseStr = response35lite.body?.string()
+                if (responseStr != null) {
+                    val text = parseGeminiResponseText(responseStr)
+                    if (!text.isNullOrBlank()) return@withContext text
+                }
+            }
+
+            // Fallback try gemini-3.5-flash
+            val url35 = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=$currentKey"
+            val request35 = Request.Builder().url(url35).post(requestBody).build()
+            val response35 = client.newCall(request35).execute()
+            if (response35.isSuccessful) {
+                val responseStr = response35.body?.string()
+                if (responseStr != null) {
+                    val text = parseGeminiResponseText(responseStr)
+                    if (!text.isNullOrBlank()) return@withContext text
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return@withContext null
+    }
+
+    private fun parseGeminiResponseText(jsonStr: String): String? {
+        try {
+            val rootObj = JSONObject(jsonStr)
+            val candidates = rootObj.optJSONArray("candidates")
+            if (candidates != null && candidates.length() > 0) {
+                val content = candidates.getJSONObject(0).optJSONObject("content")
+                val parts = content?.optJSONArray("parts")
+                if (parts != null && parts.length() > 0) {
+                    val text = parts.getJSONObject(0).optString("text", "")
+                    if (text.isNotBlank()) {
+                        return text.trim()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
+    }
 }
+

@@ -102,6 +102,9 @@ let chatMessages = [
 ];
 
 let geminiApiKey = "";
+let storageCleaned = false;
+let virusScanned = false;
+let appsRestricted = false;
 
 document.addEventListener('DOMContentLoaded', () => {
     setupNavigation();
@@ -169,52 +172,69 @@ function renderScreen() {
 
 function renderHomeScreen(container, scenario) {
     const isFixed = appState === 'VERIFIED';
+    const isDiagnosed = appState === 'DIAGNOSED' || appState === 'VERIFIED';
+
     const tel = isFixed ? scenario.telemetryAfter : scenario.telemetryBefore;
     const score = isFixed ? 98 : scenario.healthScore;
 
+    const scoreCircleContent = isDiagnosed ? `
+        <div class="score-num">${score}</div>
+        <div class="score-max">pts</div>
+    ` : `
+        <div style="font-size: 38px; line-height: 1;">🩺</div>
+        <div class="score-max" style="margin-top: 4px; font-weight: 800; color: #30D158;">READY</div>
+    `;
+
+    const conditionText = !isDiagnosed && !isFixed
+        ? 'Tap Diagnose to scan real-time phone health & detect issues.'
+        : (isFixed ? '✓ All issues fixed. System is in good condition.' : '⚠️ Issues detected. Optimization recommended.');
+
+    const buttonText = isFixed ? 'Re-scan Device' : (isDiagnosed ? 'Optimise' : 'Diagnose');
+
     container.innerHTML = `
-        <div style="display: flex; justify-content: flex-end; align-items: center;">
-            <div style="background: var(--dark-card); padding: 5px 12px; border-radius: 12px; border: 1px solid var(--dark-border); font-size: 10px; font-weight: 700; color: var(--success-green); font-family: var(--font-heading);">
-                ● LIVE TELEMETRY
-            </div>
+        <!-- Top App Bar Inspired by Phone Manager Screenshot -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 2px 8px 2px;">
+            <div style="font-size: 24px; font-weight: 800; color: #FFFFFF; font-family: var(--font-heading);">Optima</div>
+            <div style="font-size: 20px; color: #9BA49E; cursor: pointer;">⋮</div>
         </div>
 
+        <!-- Circular Score Gauge -->
         <div class="health-score-container">
-            <div style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">Phone Health Score</div>
             <div class="score-circle">
-                <div class="score-num">${score}</div>
-                <div class="score-max">/ 100</div>
+                <div class="score-circle-inner">
+                    ${scoreCircleContent}
+                </div>
             </div>
-            <div class="issues-badge" style="${isFixed ? 'background: rgba(48,209,88,0.15); color: var(--success-green);' : ''}">
-                ${isFixed ? '✓ All issues fixed' : '⚠️ 2 issues detected'}
+            <div class="system-condition-text">
+                ${conditionText}
             </div>
+            <button class="btn-primary" onclick="startScanSequence()">
+                ${buttonText}
+            </button>
         </div>
 
-        <button class="btn-primary" onclick="startScanSequence()">
-            🩺 Diagnose My Phone
-        </button>
-
-        <div class="card" style="border-color: rgba(0, 229, 255, 0.45); cursor: pointer;" onclick="currentTab='chat'; renderScreen();">
+        <!-- AI Assistant Banner (Positioned right below Optimise section) -->
+        <div class="card" style="border-color: rgba(48, 209, 88, 0.45); cursor: pointer;" onclick="currentTab='chat'; renderScreen();">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; gap: 12px; align-items: center;">
-                    <img src="app_logo.png" alt="Logo" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover; border: 1px solid var(--accent-cyan);">
+                    <img src="app_logo.png" alt="Logo" style="width: 38px; height: 38px; border-radius: 10px; object-fit: cover; border: 1.5px solid #30D158;">
                     <div>
-                        <div style="font-size: 10px; font-weight: 800; color: var(--accent-cyan); font-family: var(--font-heading); letter-spacing: 0.5px;">ASK AI DOCTOR CHATBOT</div>
-                        <div style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-top: 2px;">"Why is my phone lagging?"</div>
+                        <div style="font-size: 10px; font-weight: 800; color: #30D158; font-family: var(--font-heading); letter-spacing: 0.5px;">ASK OPTIMA AI</div>
+                        <div style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-top: 2px;">Wanna talk about your phone issue?</div>
                     </div>
                 </div>
-                <span style="background: rgba(0,229,255,0.15); color: var(--accent-cyan); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; font-family: var(--font-heading);">Chat →</span>
+                <span style="background: rgba(48, 209, 88, 0.15); color: #30D158; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 800; font-family: var(--font-heading);">Chat →</span>
             </div>
         </div>
 
-        <!-- Section 15: Gaming Health Card -->
+        <!-- Gaming Health Card (Positioned below AI Assistant Banner) -->
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <span style="font-size: 15px; font-weight: 800; font-family: var(--font-heading); display: flex; align-items: center; gap: 6px;">
                     <span>🎮</span> Gaming Health
                 </span>
-                <span style="background: rgba(255, 204, 0, 0.15); color: var(--warning-yellow); padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 800; font-family: var(--font-heading);">
-                    54 FPS
+                <span style="background: ${isFixed ? 'rgba(48, 209, 88, 0.15)' : 'rgba(255, 214, 10, 0.15)'}; color: ${isFixed ? '#30D158' : '#FFD60A'}; padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 800; font-family: var(--font-heading);">
+                    ${isFixed ? '60 FPS' : '54 FPS'}
                 </span>
             </div>
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; font-size: 12px; text-align: center;">
@@ -232,48 +252,102 @@ function renderHomeScreen(container, scenario) {
                 </div>
                 <div>
                     <div style="color: var(--text-muted); font-size: 10px;">Stability</div>
-                    <div style="font-weight: 800; font-family: var(--font-heading); margin-top: 2px;">91%</div>
+                    <div style="font-weight: 800; font-family: var(--font-heading); margin-top: 2px;">${isFixed ? '99%' : '91%'}</div>
                 </div>
             </div>
-            <div style="font-size: 11.5px; color: var(--warning-yellow); margin-top: 10px; font-weight: 500;">
-                ⚠️ Performance may decrease if temperature continues rising.
+            <div style="font-size: 11.5px; color: ${isFixed ? '#30D158' : '#FFD60A'}; margin-top: 10px; font-weight: 500;">
+                ${isFixed ? '✓ Gaming profile optimized for maximum stability.' : '⚠️ Performance may decrease if temperature continues rising.'}
             </div>
         </div>
 
-        <div style="font-size: 16px; font-weight: 800; font-family: var(--font-heading); margin-top: 2px;">Device Telemetry</div>
+        <!-- 2x2 Main Grid Cards (Storage, Risks, System Boost, App Management) -->
+        <div class="pm-grid">
+            <div class="pm-card" onclick="openStorageModal()" style="cursor: pointer;">
+                <div>
+                    <div class="pm-card-icon">🧹</div>
+                    <div class="pm-card-title">Storage cleanup</div>
+                </div>
+                <div class="pm-card-sub">${storageCleaned ? '68 GB / 256 GB' : (tel.storage || 115) + ' GB / 256 GB'}</div>
+            </div>
 
-        <div class="metrics-grid">
-            <div class="metric-pill">
-                <div class="pill-header">
-                    <span>🔋 Battery</span>
-                    <span class="pill-status">Good</span>
+            <div class="pm-card" onclick="openVirusModal()" style="cursor: pointer;">
+                <div>
+                    <div class="pm-card-icon">🛡️</div>
+                    <div class="pm-card-title">Viruses & risks</div>
                 </div>
-                <div class="pill-value">${tel.drain}% / hr</div>
-            </div>
-            <div class="metric-pill">
-                <div class="pill-header">
-                    <span>🌡️ Thermal</span>
-                    <span class="pill-status ${tel.temp > 42 ? 'warning' : ''}">${tel.temp > 42 ? 'Warning' : 'Good'}</span>
+                <div class="pm-card-sub ${(virusScanned || isFixed) ? '' : 'red'}">
+                    ${(virusScanned || isFixed) ? 'Clean & protected' : 'Manually scanned 5 days ago'}
                 </div>
-                <div class="pill-value">${tel.temp}°C</div>
             </div>
-            <div class="metric-pill">
-                <div class="pill-header">
-                    <span>⚡ CPU</span>
-                    <span class="pill-status">Good</span>
+
+            <div class="pm-card" onclick="executeSystemBoost()" style="cursor: pointer;">
+                <div>
+                    <div class="pm-card-icon">🚀</div>
+                    <div class="pm-card-title">System boost</div>
                 </div>
-                <div class="pill-value">${tel.cpu}%</div>
+                <div class="pm-card-sub">Improve system performance.</div>
             </div>
-            <div class="metric-pill">
-                <div class="pill-header">
-                    <span>💾 Storage</span>
-                    <span class="pill-status ${tel.storage > 90 ? 'warning' : ''}">${tel.storage > 90 ? 'Warning' : 'Good'}</span>
+
+            <div class="pm-card" onclick="openAppManagementModal()" style="cursor: pointer;">
+                <div>
+                    <div class="pm-card-icon">📱</div>
+                    <div class="pm-card-title">App management</div>
                 </div>
-                <div class="pill-value">${tel.storage}%</div>
+                <div class="pm-card-sub ${(appsRestricted || isFixed) ? '' : 'red'}">
+                    ${(appsRestricted || isFixed) ? 'All apps optimized' : 'View weekly app usage'}
+                </div>
             </div>
+        </div>
+
+        <!-- Device Health Telemetry (Battery, Thermal, Performance, Storage, Network) -->
+        <div style="margin-top: 4px;">
+            <div style="font-size: 15px; font-weight: 800; font-family: var(--font-heading); margin-bottom: 10px;">Device Health Telemetry</div>
+            <div class="metrics-grid">
+                <div class="metric-pill">
+                    <div class="pill-header">
+                        <span>🔋 Battery</span>
+                        <span class="pill-status">Good</span>
+                    </div>
+                    <div class="pill-value">${tel.drain}% / hr</div>
+                </div>
+                <div class="metric-pill">
+                    <div class="pill-header">
+                        <span>🌡️ Thermal</span>
+                        <span class="pill-status ${tel.temp > 42 ? 'warning' : ''}">${tel.temp > 42 ? 'Warning' : 'Good'}</span>
+                    </div>
+                    <div class="pill-value">${tel.temp}°C</div>
+                </div>
+                <div class="metric-pill">
+                    <div class="pill-header">
+                        <span>⚡ Performance</span>
+                        <span class="pill-status">Good</span>
+                    </div>
+                    <div class="pill-value">${tel.cpu}% CPU</div>
+                </div>
+                <div class="metric-pill">
+                    <div class="pill-header">
+                        <span>💾 Storage</span>
+                        <span class="pill-status ${tel.storage > 90 ? 'warning' : ''}">${tel.storage > 90 ? 'Warning' : 'Good'}</span>
+                    </div>
+                    <div class="pill-value">${tel.storage}%</div>
+                </div>
+            </div>
+            <div class="metric-pill" style="margin-top: 10px;">
+                <div class="pill-header">
+                    <span>📶 Network</span>
+                    <span class="pill-status ${tel.network === 'Poor' ? 'warning' : ''}">${tel.network === 'Poor' ? 'Fair' : 'Good'}</span>
+                </div>
+                <div class="pill-value">${tel.network || 'Good Quality'}</div>
+            </div>
+        </div>
+
+        <!-- Protected Footer -->
+        <div class="pm-protected-footer">
+            <span>🛡️</span> Protected in real time by Optima
         </div>
     `;
 }
+
 
 function renderChatScreen(container, scenario) {
     const tel = scenario.telemetryBefore;
@@ -312,7 +386,7 @@ function renderChatScreen(container, scenario) {
                         <span style="font-size: 11px; font-weight: 800; color: var(--accent-cyan); font-family: var(--font-heading);">AI Doctor</span>
                     </div>
                 ` : ''}
-                <div>${msg.text}</div>
+                <div>${formatMarkdownHtml(msg.text)}</div>
                 ${sourcesHTML}
                 ${actionBtn}
             </div>
@@ -320,13 +394,10 @@ function renderChatScreen(container, scenario) {
     }).join('');
 
     container.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="position: sticky; top: 0; background: var(--bg-cyber); z-index: 10; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <img src="app_logo.png" class="app-logo-avatar">
-                <div>
-                    <div style="font-size: 11px; font-weight: 800; color: var(--iqoo-orange); font-family: var(--font-heading); letter-spacing: 0.8px;">AI DOCTOR CHATBOT</div>
-                    <div style="font-size: 18px; font-weight: 800; font-family: var(--font-heading);">Your Personal Phone Expert</div>
-                </div>
+                <div style="font-size: 18px; font-weight: 800; font-family: var(--font-heading); color: var(--text-primary);">Optima AI Assistant</div>
             </div>
             <button style="background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; font-weight: 600;" onclick="chatMessages=[chatMessages[0]]; renderScreen();">Clear</button>
         </div>
@@ -373,40 +444,117 @@ function sendUserMessage() {
     renderScreen();
 
     const scenario = SCENARIOS[currentScenarioKey];
-    const tel = scenario.telemetryBefore;
+    const tel = appState === 'VERIFIED' ? scenario.telemetryAfter : scenario.telemetryBefore;
 
-    // Simulate RAG Retrieval & AI Response Generation
-    setTimeout(() => {
-        let aiText = "";
-        let sources = [];
-        const queryLower = userText.toLowerCase();
+    const queryLower = userText.toLowerCase();
 
-        sources.push({ label: "Current RAM", val: `${tel.ram}%` });
-        sources.push({ label: "Temperature", val: `${tel.temp}°C` });
-        sources.push({ label: "Normal Baseline Temp", val: "36.0°C" });
-        sources.push({ label: "Active App", val: tel.app });
+    let sources = [
+        { label: "Current RAM", val: `${tel.ram}%` },
+        { label: "Temperature", val: `${tel.temp}°C` },
+        { label: "Normal Temp Baseline", val: "36.0°C" },
+        { label: "Active App", val: tel.app }
+    ];
 
-        if (queryLower.includes('battery') || queryLower.includes('drain')) {
-            aiText = `Your battery is currently draining at ${tel.drain}%/hr, which is 28% higher than your normal 6.4%/hr baseline. ${tel.app} is using unusually high background activity while device temperature is ${tel.temp}°C.`;
-            sources.push({ label: "Current Drain", val: `${tel.drain}%/hr` });
-            sources.push({ label: "Normal Drain", val: "6.4%/hr" });
-        } else if (queryLower.includes('hot') || queryLower.includes('heat') || queryLower.includes('warm')) {
-            aiText = `Your device temperature is ${tel.temp}°C (normal baseline is 36.0°C). Simultaneous high CPU background processing and active app workload are causing thermal stress accumulation.`;
-        } else if (queryLower.includes('fps') || queryLower.includes('bgmi') || queryLower.includes('game')) {
-            aiText = `During your active ${tel.app} gaming session, thermal output has reached ${tel.temp}°C with RAM at ${tel.ram}%. Thermal throttling is predicted to affect frame stability in ~9 minutes.`;
-        } else {
-            aiText = `Your phone is currently using ${tel.ram}% of available RAM and its temperature is ${tel.temp}°C. Thermal stress and memory pressure are the primary causes of slowdown.`;
-        }
+    if (queryLower.includes('battery') || queryLower.includes('drain')) {
+        sources.push({ label: "Current Drain Rate", val: `${tel.drain}%/hr` });
+        sources.push({ label: "Baseline Normal Drain", val: "6.4%/hr" });
+    }
 
-        chatMessages.push({
-            sender: 'AI',
-            text: aiText,
-            sources: sources,
-            canFix: true
+    if (geminiApiKey) {
+        const ragPrompt = `
+You are Optima AI Doctor, an expert device diagnostics assistant on an iQOO flagship smartphone.
+Answer the user's question accurately using Retrieval-Augmented Generation (RAG) grounded on the live device telemetry below.
+
+=== LIVE DEVICE TELEMETRY CONTEXT ===
+- Device Model: iQOO 13 Flagship (16GB RAM)
+- Active Foreground App: ${tel.app}
+- Temperature: ${tel.temp}°C (Normal baseline ~36.0°C)
+- Battery Drain Rate: ${tel.drain}%/hr (Normal baseline 6.4%/hr)
+- RAM Usage: ${tel.ram}%
+- Active Scenario: ${scenario.title}
+
+=== USER QUESTION ===
+"${userText}"
+
+=== MANDATORY FORMAT RULES ===
+Format your response clearly into 3 short sections using markdown:
+
+🔍 **Root Cause**
+(1-2 clear sentences explaining the issue using telemetry evidence: ${tel.temp}°C temp, ${tel.ram}% RAM, ${tel.drain}%/hr drain).
+
+📊 **Live Telemetry Evidence**
+• Temp: ${tel.temp}°C (Normal ~36°C)
+• RAM Usage: ${tel.ram}%
+• Drain Rate: ${tel.drain}%/hr
+• Active App: ${tel.app}
+
+🛠️ **Recommended Action**
+(1-2 concise bullet points with actionable advice to fix the issue).
+`;
+
+        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiApiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: ragPrompt }] }]
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            let aiText = "";
+            try {
+                if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
+                    aiText = data.candidates[0].content.parts[0].text.trim();
+                } else if (data.error) {
+                    aiText = `⚠️ Gemini API Error: ${data.error.message || 'Check key'}.\n\n` + getOfflineRAGText(queryLower, tel);
+                } else {
+                    aiText = getOfflineRAGText(queryLower, tel);
+                }
+            } catch(e) {
+                aiText = getOfflineRAGText(queryLower, tel);
+            }
+            chatMessages.push({ sender: 'AI', text: aiText, sources: sources, canFix: true });
+            renderScreen();
+        })
+        .catch(err => {
+            console.error("Gemini fetch error:", err);
+            chatMessages.push({ sender: 'AI', text: getOfflineRAGText(queryLower, tel), sources: sources, canFix: true });
+            renderScreen();
         });
+    } else {
+        setTimeout(() => {
+            chatMessages.push({
+                sender: 'AI',
+                text: getOfflineRAGText(queryLower, tel),
+                sources: sources,
+                canFix: true
+            });
+            renderScreen();
+        }, 600);
+    }
+}
 
-        renderScreen();
-    }, 600);
+function getOfflineRAGText(queryLower, tel) {
+    let cause = "";
+    if (queryLower.includes('battery') || queryLower.includes('drain')) {
+        cause = `Your battery is draining at ${tel.drain}%/hr (28% higher than normal 6.4%/hr baseline) due to excessive background activity from ${tel.app}.`;
+    } else if (queryLower.includes('hot') || queryLower.includes('heat') || queryLower.includes('warm')) {
+        cause = `Device temperature sensors report ${tel.temp}°C (normal baseline ~36.0°C) caused by high CPU background workload.`;
+    } else if (queryLower.includes('fps') || queryLower.includes('bgmi') || queryLower.includes('game')) {
+        cause = `During your active ${tel.app} gaming session, thermal output reached ${tel.temp}°C with RAM at ${tel.ram}%, triggering frame drops.`;
+    } else {
+        cause = `Your phone is using ${tel.ram}% of available RAM and its temperature is ${tel.temp}°C (normal baseline is 36.0°C).`;
+    }
+
+    return `🔍 **Root Cause**\n${cause}\n\n📊 **Live Telemetry Evidence**\n• Device Temp: ${tel.temp}°C\n• RAM Usage: ${tel.ram}%\n• Battery Drain: ${tel.drain}%/hr\n• Active App: ${tel.app}\n\n🛠️ **Recommended Action**\n• Run one-tap device optimization to clear background memory pressure and restrict unneeded services.`;
+}
+
+function formatMarkdownHtml(text) {
+    if (!text) return "";
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
 }
 
 function renderDiagnoseScreen(container, scenario) {
@@ -697,3 +845,250 @@ function applyFixSequence() {
         renderScreen();
     }, 1600);
 }
+
+function runDiagnoseSequenceOnHome() {
+    appState = 'SCANNING';
+    renderScreen();
+    setTimeout(() => {
+        appState = 'DIAGNOSED';
+        renderScreen();
+    }, 1200);
+}
+
+function runOptimiseSequenceOnHome() {
+    appState = 'FIXING';
+    renderScreen();
+    setTimeout(() => {
+        appState = 'VERIFIED';
+        const scenario = SCENARIOS[currentScenarioKey];
+        historyLog.unshift({
+            title: scenario.issueTitle.replace('⚠️ ', ''),
+            severity: "GREEN",
+            time: "Just Now",
+            cause: scenario.causes[0].name,
+            action: scenario.recommendation,
+            result: "Fixed & Optimized"
+        });
+        renderScreen();
+    }, 1400);
+}
+
+function resetHomeState() {
+    appState = 'IDLE';
+    renderScreen();
+}
+
+// ----------------------------------------------------
+// 2x2 GRID CARD INTERACTIVE FEATURE HANDLERS & MODALS
+// ----------------------------------------------------
+
+function showToast(message) {
+    const screen = document.querySelector('.phone-screen') || document.body;
+    const existing = document.querySelector('.pm-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'pm-toast';
+    toast.innerHTML = message;
+    screen.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 2200);
+}
+
+function closeModal() {
+    const modal = document.querySelector('.pm-modal-overlay');
+    if (modal) modal.remove();
+}
+
+function openStorageModal() {
+    const screen = document.querySelector('.phone-screen') || document.body;
+    closeModal();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'pm-modal-overlay';
+    overlay.innerHTML = `
+        <div class="pm-modal-card">
+            <div class="pm-modal-header">
+                <div class="pm-modal-title"><span>🧹</span> Storage Cleanup</div>
+                <button class="pm-modal-close" onclick="closeModal()">✕</button>
+            </div>
+            
+            <div style="font-size: 13px; color: var(--text-secondary);">
+                ${storageCleaned ? 'Storage optimized! Free space: 188 GB available.' : 'Deep analysis found 14.2 GB of safe-to-delete files.'}
+            </div>
+
+            <div style="background: rgba(255,255,255,0.04); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">🗑️ App & System Cache</span>
+                    <span style="font-weight: 700;">3.4 GB</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">🖼️ Duplicate Media & Screenshots</span>
+                    <span style="font-weight: 700;">8.0 GB</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">📦 Residual Installation Files</span>
+                    <span style="font-weight: 700;">2.8 GB</span>
+                </div>
+            </div>
+
+            <div id="storageActionArea">
+                ${storageCleaned ? `
+                    <div style="text-align: center; color: #30D158; font-weight: 800; padding: 10px;">
+                        ✓ Storage Cleaned (14.2 GB Released)
+                    </div>
+                ` : `
+                    <button class="btn-primary" onclick="executeStorageCleanup()">
+                        🧹 Clean 14.2 GB Junk
+                    </button>
+                `}
+            </div>
+        </div>
+    `;
+    screen.appendChild(overlay);
+}
+
+function executeStorageCleanup() {
+    const area = document.getElementById('storageActionArea');
+    if (area) {
+        area.innerHTML = `
+            <div style="text-align: center; font-size: 13px; color: #30D158; font-weight: 700; margin-bottom: 8px;">Purging cache & temporary files...</div>
+            <div class="pm-progress-bar">
+                <div class="pm-progress-fill" id="storageProg" style="width: 0%;"></div>
+            </div>
+        `;
+    }
+
+    setTimeout(() => {
+        const fill = document.getElementById('storageProg');
+        if (fill) fill.style.width = '100%';
+    }, 100);
+
+    setTimeout(() => {
+        storageCleaned = true;
+        closeModal();
+        renderScreen();
+        showToast("🧹 14.2 GB Storage Cleaned!");
+    }, 1200);
+}
+
+function openVirusModal() {
+    const screen = document.querySelector('.phone-screen') || document.body;
+    closeModal();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'pm-modal-overlay';
+    overlay.innerHTML = `
+        <div class="pm-modal-card">
+            <div class="pm-modal-header">
+                <div class="pm-modal-title"><span>🛡️</span> Security & Risk Scanner</div>
+                <button class="pm-modal-close" onclick="closeModal()">✕</button>
+            </div>
+
+            <div style="font-size: 13px; color: var(--text-secondary);">
+                ${virusScanned ? '✓ Real-time protection active. 0 threats detected.' : 'Scanning 124 app packages & system files for malware, scam links, and privacy risks.'}
+            </div>
+
+            <div id="virusActionArea">
+                ${virusScanned ? `
+                    <div style="background: rgba(48,209,88,0.12); border: 1px solid rgba(48,209,88,0.4); border-radius: 14px; padding: 14px; text-align: center; color: #30D158; font-weight: 800; font-size: 14px;">
+                        ✓ Clean & Safe (0 Threats Found)
+                    </div>
+                ` : `
+                    <button class="btn-primary" onclick="executeVirusScan()">
+                        🛡️ Run Full Security Scan
+                    </button>
+                `}
+            </div>
+        </div>
+    `;
+    screen.appendChild(overlay);
+}
+
+function executeVirusScan() {
+    const area = document.getElementById('virusActionArea');
+    if (area) {
+        area.innerHTML = `
+            <div style="text-align: center; font-size: 13px; color: #30D158; font-weight: 700; margin-bottom: 8px;">Scanning 124 installed apps...</div>
+            <div class="pm-progress-bar">
+                <div class="pm-progress-fill" id="virusProg" style="width: 0%;"></div>
+            </div>
+        `;
+    }
+
+    setTimeout(() => {
+        const fill = document.getElementById('virusProg');
+        if (fill) fill.style.width = '100%';
+    }, 100);
+
+    setTimeout(() => {
+        virusScanned = true;
+        closeModal();
+        renderScreen();
+        showToast("🛡️ Security Scan Passed! 0 Threats Found.");
+    }, 1300);
+}
+
+function executeSystemBoost() {
+    showToast("🚀 System Boosted! Released 1.8 GB RAM.");
+}
+
+function openAppManagementModal() {
+    const screen = document.querySelector('.phone-screen') || document.body;
+    closeModal();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'pm-modal-overlay';
+    overlay.innerHTML = `
+        <div class="pm-modal-card">
+            <div class="pm-modal-header">
+                <div class="pm-modal-title"><span>📱</span> App Management</div>
+                <button class="pm-modal-close" onclick="closeModal()">✕</button>
+            </div>
+
+            <div style="font-size: 13px; color: var(--text-secondary);">
+                Active background apps consuming power and memory:
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="background: rgba(255,255,255,0.04); padding: 12px 14px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 14px; color: #FFFFFF;">Instagram</div>
+                        <div style="font-size: 11px; color: #FF5252;">62% background drain</div>
+                    </div>
+                    <button class="btn-primary" style="width: auto; height: 34px; padding: 0 14px; font-size: 12px; border-radius: 12px;" onclick="executeAppRestrict('Instagram')">
+                        ${appsRestricted ? 'Restricted ✓' : 'Restrict'}
+                    </button>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.04); padding: 12px 14px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 14px; color: #FFFFFF;">Gaming App</div>
+                        <div style="font-size: 11px; color: #FFD60A;">24% thermal load</div>
+                    </div>
+                    <button class="btn-primary" style="width: auto; height: 34px; padding: 0 14px; font-size: 12px; border-radius: 12px;" onclick="executeAppRestrict('Gaming App')">
+                        ${appsRestricted ? 'Optimized ✓' : 'Optimize'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    screen.appendChild(overlay);
+}
+
+function executeAppRestrict(appName) {
+    appsRestricted = true;
+    closeModal();
+    renderScreen();
+    showToast(`📱 ${appName} Background Power Restricted!`);
+}
+
+// Initial render
+document.addEventListener('DOMContentLoaded', () => {
+    renderScreen();
+});
+

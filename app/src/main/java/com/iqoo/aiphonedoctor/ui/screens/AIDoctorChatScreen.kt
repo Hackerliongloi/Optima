@@ -1,6 +1,6 @@
 package com.iqoo.aiphonedoctor.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,14 +19,26 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.iqoo.aiphonedoctor.data.model.ChatMessage
 import com.iqoo.aiphonedoctor.ui.theme.*
 import com.iqoo.aiphonedoctor.ui.viewmodel.MainViewModel
-import kotlinx.coroutines.launch
+
+import android.app.Application
+
+@Preview(showBackground = true)
+@Composable
+fun AIDoctorChatScreenPreview() {
+    AIPhoneDoctorTheme {
+        AIDoctorChatScreen(viewModel = MainViewModel(Application()))
+    }
+}
 
 @Composable
 fun AIDoctorChatScreen(viewModel: MainViewModel) {
@@ -34,7 +46,6 @@ fun AIDoctorChatScreen(viewModel: MainViewModel) {
     val isTyping by viewModel.isChatTyping.collectAsState()
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(messages.size, isTyping) {
         if (messages.isNotEmpty()) {
@@ -48,13 +59,15 @@ fun AIDoctorChatScreen(viewModel: MainViewModel) {
             .background(CyberBlack)
             .padding(16.dp)
     ) {
-        // Header
+        // Sticky Header: Robot Avatar + "Optima AI Assistant"
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                 Box(
                     modifier = Modifier
                         .size(42.dp)
@@ -65,20 +78,13 @@ fun AIDoctorChatScreen(viewModel: MainViewModel) {
                 ) {
                     Text(text = "🤖", fontSize = 22.sp)
                 }
-                Spacer(modifier = Modifier.width(10.dp))
-                Column {
-                    Text(
-                        text = "AI DOCTOR CHATBOT",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = IqooOrange
-                    )
-                    Text(
-                        text = "Your Personal Phone Expert",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = TextPrimary
-                    )
-                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "Optima AI Assistant",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary
+                )
             }
 
             IconButton(onClick = { viewModel.clearChat() }) {
@@ -90,7 +96,7 @@ fun AIDoctorChatScreen(viewModel: MainViewModel) {
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         // Chat Message List
         LazyColumn(
@@ -222,7 +228,7 @@ fun ChatMessageBubble(msg: ChatMessage, onTriggerFix: () -> Unit) {
                 bottomStart = if (isUser) 16.dp else 4.dp,
                 bottomEnd = if (isUser) 4.dp else 16.dp
             ),
-            border = androidx.compose.foundation.BorderStroke(
+            border = BorderStroke(
                 1.dp,
                 if (isUser) IqooOrange.copy(alpha = 0.5f) else DarkCardBorder
             )
@@ -249,14 +255,15 @@ fun ChatMessageBubble(msg: ChatMessage, onTriggerFix: () -> Unit) {
                     Spacer(modifier = Modifier.height(6.dp))
                 }
 
+                // Formatted Text Rendering (no raw asterisks, strictly line-by-line)
                 Text(
-                    text = msg.text,
+                    text = buildMarkdownAnnotatedString(msg.text),
                     fontSize = 14.sp,
                     lineHeight = 20.sp,
                     color = TextPrimary
                 )
 
-                // Expandable RAG Context Badge
+                // Expandable RAG Telemetry Context Badge
                 if (!isUser && msg.ragSources.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Box(
@@ -275,7 +282,7 @@ fun ChatMessageBubble(msg: ChatMessage, onTriggerFix: () -> Unit) {
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "📊 Based on your phone data",
+                                    text = "📊 Telemetry Grounded Context",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = AccentCyan
@@ -305,7 +312,7 @@ fun ChatMessageBubble(msg: ChatMessage, onTriggerFix: () -> Unit) {
                     }
                 }
 
-                // Action Button inside Chatbot
+                // Interactive "Fix Now" Action Button inside AI Chat Bubble
                 if (!isUser && msg.canTriggerFix) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(
@@ -325,6 +332,51 @@ fun ChatMessageBubble(msg: ChatMessage, onTriggerFix: () -> Unit) {
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Custom AnnotatedString parser that renders **bold** text without showing raw asterisks
+ * and strictly preserves line-by-line (\n) bullet point structure.
+ */
+fun buildMarkdownAnnotatedString(text: String): AnnotatedString {
+    val lines = text.lines().joinToString("\n") { line ->
+        val trimmed = line.trimStart()
+        if (trimmed.startsWith("#")) {
+            trimmed.replace(Regex("^#+\\s*"), "")
+        } else {
+            line
+        }
+    }
+
+    return buildAnnotatedString {
+        val boldRegex = Regex("\\*\\*(.*?)\\*\\*")
+        var lastIndex = 0
+        val matches = boldRegex.findAll(lines)
+
+        for (match in matches) {
+            val start = match.range.first
+            val end = match.range.last + 1
+
+            if (start > lastIndex) {
+                append(lines.substring(lastIndex, start))
+            }
+
+            val boldContent = match.groupValues[1]
+            val boldStart = length
+            append(boldContent)
+            addStyle(
+                style = SpanStyle(fontWeight = FontWeight.Bold, color = TextPrimary),
+                start = boldStart,
+                end = boldStart + boldContent.length
+            )
+
+            lastIndex = end
+        }
+
+        if (lastIndex < lines.length) {
+            append(lines.substring(lastIndex))
         }
     }
 }
