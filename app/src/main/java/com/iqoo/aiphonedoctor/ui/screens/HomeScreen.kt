@@ -45,21 +45,9 @@ fun HomeScreen(viewModel: MainViewModel) {
         // Header Bar
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(
-                    text = "iQOO AI DOCTOR",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = IqooOrange
-                )
-                Text(
-                    text = "AI Phone Doctor",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = TextPrimary
-                )
-            }
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(20.dp))
@@ -81,43 +69,6 @@ fun HomeScreen(viewModel: MainViewModel) {
                         fontWeight = FontWeight.Bold,
                         color = TextSecondary
                     )
-                }
-            }
-        }
-
-        // Simulation Scenario Picker
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = DarkCardBg),
-            shape = RoundedCornerShape(14.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, DarkCardBorder)
-        ) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                Text(
-                    text = "⚡ SIMULATION SCENARIO SELECTOR",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = IqooOrange
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(DemoScenario.values()) { item ->
-                        val isSelected = item == scenario
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(if (isSelected) IqooOrange else DarkSurface)
-                                .clickable { viewModel.updateScenario(item) }
-                                .padding(horizontal = 12.dp, vertical = 8.dp)
-                        ) {
-                            Text(
-                                text = item.title,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isSelected) CyberBlack else TextPrimary
-                            )
-                        }
-                    }
                 }
             }
         }

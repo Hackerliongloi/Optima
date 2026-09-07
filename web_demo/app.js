@@ -173,14 +173,7 @@ function renderHomeScreen(container, scenario) {
     const score = isFixed ? 98 : scenario.healthScore;
 
     container.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="app_logo.png" alt="Logo" class="app-header-logo">
-                <div>
-                    <div style="font-size: 11px; font-weight: 800; color: var(--iqoo-orange); font-family: var(--font-heading); letter-spacing: 0.8px;">iQOO AI DOCTOR</div>
-                    <div style="font-size: 20px; font-weight: 800; font-family: var(--font-heading);">AI Phone Doctor</div>
-                </div>
-            </div>
+        <div style="display: flex; justify-content: flex-end; align-items: center;">
             <div style="background: var(--dark-card); padding: 5px 12px; border-radius: 12px; border: 1px solid var(--dark-border); font-size: 10px; font-weight: 700; color: var(--success-green); font-family: var(--font-heading);">
                 ● LIVE TELEMETRY
             </div>
