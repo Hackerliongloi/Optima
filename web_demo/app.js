@@ -25,7 +25,7 @@ const SCENARIOS = {
         issueTitle: "⚠️ Thermal Stress Warning",
         issueDesc: "Your device temperature is rising unusually quickly during active usage.",
         causes: [
-            { name: "Gaming Workload (Game)", percent: 55, icon: "🎮" },
+            { name: "Gaming Workload", percent: 55, icon: "🎮" },
             { name: "Fast Battery Charging", percent: 30, icon: "⚡" },
             { name: "Background Processing", percent: 15, icon: "⚙️" }
         ],
@@ -218,7 +218,7 @@ function renderHomeScreen(container, scenario) {
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <span style="font-size: 15px; font-weight: 800; font-family: var(--font-heading); display: flex; align-items: center; gap: 6px;">
-                    <span>🎮</span> Gaming Health (Game)
+                    <span>🎮</span> Gaming Health
                 </span>
                 <span style="background: rgba(255, 204, 0, 0.15); color: var(--warning-yellow); padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 800; font-family: var(--font-heading);">
                     54 FPS
@@ -641,10 +641,6 @@ function renderProfileScreen(container) {
                 <div style="display: flex; justify-content: space-between;">
                     <span style="color: var(--text-secondary);">⚡ Performance Mode:</span>
                     <span style="font-weight: 700;">Balanced / Monster Mode</span>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--text-secondary);">🎯 Primary Game:</span>
-                    <span style="font-weight: 700;">Game (60 FPS Ultra)</span>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
                     <span style="color: var(--text-secondary);">⏱️ Screen Time:</span>

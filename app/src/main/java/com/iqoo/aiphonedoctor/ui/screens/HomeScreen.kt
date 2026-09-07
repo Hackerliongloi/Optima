@@ -288,7 +288,7 @@ fun HomeScreen(viewModel: MainViewModel) {
                         Text(text = "🎮", fontSize = 20.sp)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Gaming Health (Game)",
+                            text = "Gaming Health",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = TextPrimary
