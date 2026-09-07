@@ -1,8 +1,8 @@
-# 📱 iQOO AI Phone Doctor
+# 📱 Phone AI Doctor
 
 > **Proactive On-Device Diagnostics & Thermal Optimization System**
 
-**iQOO AI Phone Doctor** is an intelligent diagnostic and telemetry optimization assistant designed for modern high-performance smartphones. It continuously monitors multi-signal telemetry (CPU, GPU, RAM, battery drain rate, temperature, and background app activity) locally on-device to predict thermal throttling, pinpoint battery drain causes, and recommend instant one-tap fixes.
+**Phone AI Doctor** is an intelligent diagnostic and telemetry optimization assistant designed for modern high-performance smartphones. It continuously monitors multi-signal telemetry (CPU, GPU, RAM, battery drain rate, temperature, and background app activity) locally on-device to predict thermal throttling, pinpoint battery drain causes, and recommend instant one-tap fixes.
 
 ---
 
@@ -13,7 +13,7 @@
 - **🤖 On-Device RAG AI Assistant**: Interactive AI Chatbot powered by local diagnostic knowledge rules to answer queries like *"Why is my battery draining so fast?"* or *"Why is my phone getting hot?"*.
 - **📊 Personalization & Baseline Profiling**: Compares current real-time telemetry against historical usage baselines to detect anomalous spikes early.
 - **🌐 Dual Interface**:
-  - **Native Android Application**: Modern Jetpack Compose UI with dark mode cyber aesthetics tailored for iQOO devices.
+  - **Native Android Application**: Modern Jetpack Compose UI with dark mode cyber aesthetics tailored for Android devices.
   - **Interactive Web Demo**: Pure HTML5/CSS3/JS web prototype for live web demonstrations.
 
 ---
