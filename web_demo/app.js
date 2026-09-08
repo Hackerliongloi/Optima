@@ -1,4 +1,4 @@
-// iQOO AI Phone Doctor - Web Prototype Application Logic
+// Optima - Web Prototype Application Logic
 
 const SCENARIOS = {
     BATTERY_DRAIN: {
@@ -96,7 +96,7 @@ let historyLog = [
 let chatMessages = [
     {
         sender: "AI",
-        text: "Hello! I am your AI Phone Doctor. I continuously monitor your iQOO device telemetry to detect thermal stress, battery drain, and memory pressure. How can I help you today?",
+        text: "Hello! I am Optima. I continuously monitor your iQOO device telemetry to detect thermal stress, battery drain, and memory pressure. How can I help you today?",
         sources: []
     }
 ];
@@ -492,11 +492,18 @@ Format your response clearly into 3 short sections using markdown:
 (1-2 concise bullet points with actionable advice to fix the issue).
 `;
 
-        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiApiKey}`, {
+        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'x-goog-api-key': geminiApiKey
+            },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: ragPrompt }] }]
+                contents: [{ parts: [{ text: ragPrompt }] }],
+                generationConfig: {
+                    maxOutputTokens: 220,
+                    temperature: 0.2
+                }
             })
         })
         .then(res => res.json())
@@ -794,7 +801,7 @@ function renderProfileScreen(container) {
             </div>
 
             <div style="background: var(--dark-surface); padding: 12px; border-radius: 12px; margin-top: 12px; font-size: 11.5px; color: var(--text-secondary); line-height: 1.45;">
-                🧠 <strong>Why this matters:</strong> AI Phone Doctor compares your telemetry against this baseline. Today's 8.2%/hr drain is flagged because it is 28% above your normal pattern.
+                🧠 <strong>Why this matters:</strong> Optima compares your telemetry against this baseline. Today's 8.2%/hr drain is flagged because it is 28% above your normal pattern.
             </div>
         </div>
 

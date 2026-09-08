@@ -1,5 +1,6 @@
 package com.iqoo.aiphonedoctor.ui.navigation
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,8 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.iqoo.aiphonedoctor.R
 import com.iqoo.aiphonedoctor.ui.screens.AIDoctorChatScreen
 import com.iqoo.aiphonedoctor.ui.screens.DiagnosisScreen
 import com.iqoo.aiphonedoctor.ui.screens.HistoryScreen
@@ -38,7 +42,7 @@ data class NavItem(val label: String, val icon: ImageVector, val isCenter: Boole
 fun MainAppContainer(viewModel: MainViewModel) {
     val selectedTab by viewModel.selectedTab.collectAsState()
 
-    // 5 Core Tabs: Home, Diagnose, AI Doctor Chat 🤖, History, Profile
+    // 5 Core Tabs: Home, Diagnose, AI Doctor Chat, History, Profile
     val navItems = listOf(
         NavItem("Home", Icons.Default.Home),
         NavItem("Diagnose", Icons.Default.MedicalServices),
@@ -58,7 +62,7 @@ fun MainAppContainer(viewModel: MainViewModel) {
                     val isSelected = selectedTab == index
 
                     if (item.isCenter) {
-                        // Prominent Center AI Doctor Button
+                        // Prominent Center AI Doctor Button with Optima Logo
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -74,11 +78,13 @@ fun MainAppContainer(viewModel: MainViewModel) {
                                     .clickable { viewModel.selectTab(index) },
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(
-                                    imageVector = item.icon,
+                                Image(
+                                    painter = painterResource(id = R.drawable.app_logo),
                                     contentDescription = item.label,
-                                    tint = CyberBlack,
-                                    modifier = Modifier.size(26.dp)
+                                    modifier = Modifier
+                                        .size(46.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
                                 )
                             }
                         }

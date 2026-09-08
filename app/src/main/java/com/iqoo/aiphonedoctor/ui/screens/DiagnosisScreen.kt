@@ -69,7 +69,7 @@ fun DiagnosisScreen(viewModel: MainViewModel) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "AI Phone Doctor is analyzing device telemetry signals...",
+                    text = "Optima is analyzing device telemetry signals...",
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextSecondary
                 )

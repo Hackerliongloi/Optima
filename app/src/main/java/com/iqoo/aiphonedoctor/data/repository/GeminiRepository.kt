@@ -12,7 +12,9 @@ import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 class GeminiRepository {
-    private var apiKey: String? = null
+    private var apiKey: String? = System.getenv("GEMINI_API_KEY")?.trim()?.ifEmpty { null }
+        ?: System.getProperty("GEMINI_API_KEY")?.trim()?.ifEmpty { null }
+
     private val client = OkHttpClient.Builder()
         .connectTimeout(5, TimeUnit.SECONDS)
         .readTimeout(8, TimeUnit.SECONDS)
@@ -24,6 +26,14 @@ class GeminiRepository {
 
     fun getApiKey(): String? = apiKey
 
+    fun hasApiKey(): Boolean = !apiKey.isNullOrBlank()
+
+    fun getMaskedApiKey(): String {
+        val key = apiKey ?: return "Not Configured"
+        if (key.length <= 8) return "••••••••"
+        return key.take(4) + "••••••••" + key.takeLast(4)
+    }
+
     suspend fun generateExplanation(diagnosis: DiagnosisResult): String = withContext(Dispatchers.IO) {
         val currentKey = apiKey
         if (currentKey.isNullOrBlank()) {
@@ -32,7 +42,7 @@ class GeminiRepository {
 
         try {
             val prompt = """
-                You are AI Phone Doctor, an intelligent device diagnostics assistant on an iQOO smartphone.
+                You are Optima, an intelligent device diagnostics assistant on an iQOO smartphone.
                 Summarize this phone diagnosis in 2 concise, clear, human-readable sentences for the user:
                 - Issue: ${diagnosis.issueTitle}
                 - Primary Cause: ${diagnosis.primaryCause} (${diagnosis.confidencePercent}%)
@@ -49,36 +59,40 @@ class GeminiRepository {
                         })
                     })
                 })
+                put("generationConfig", JSONObject().apply {
+                    put("maxOutputTokens", 220)
+                    put("temperature", 0.2)
+                })
             }
 
             val requestBody = jsonBody.toString().toRequestBody("application/json".toMediaType())
-            val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=$currentKey"
+            val modelsToTry = listOf("gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-3.6-flash")
 
-            val request = Request.Builder()
-                .url(url)
-                .post(requestBody)
-                .build()
+            for (model in modelsToTry) {
+                try {
+                    val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent"
+                    val request = Request.Builder()
+                        .url(url)
+                        .addHeader("x-goog-api-key", currentKey)
+                        .post(requestBody)
+                        .build()
 
-            val response = client.newCall(request).execute()
-            if (response.isSuccessful) {
-                val responseStr = response.body?.string()
-                if (responseStr != null) {
-                    val rootObj = JSONObject(responseStr)
-                    val candidates = rootObj.optJSONArray("candidates")
-                    if (candidates != null && candidates.length() > 0) {
-                        val content = candidates.getJSONObject(0).optJSONObject("content")
-                        val parts = content?.optJSONArray("parts")
-                        if (parts != null && parts.length() > 0) {
-                            val text = parts.getJSONObject(0).optString("text", "")
-                            if (text.isNotBlank()) {
-                                return@withContext text.trim()
+                    val response = client.newCall(request).execute()
+                    if (response.isSuccessful) {
+                        val responseStr = response.body?.string()
+                        if (responseStr != null) {
+                            val text = parseGeminiResponseText(responseStr)
+                            if (!text.isNullOrBlank()) {
+                                return@withContext text
                             }
                         }
                     }
+                } catch (e: Exception) {
+                    // Try next model
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            // Log generic exception without exposing key
         }
 
         return@withContext diagnosis.aiExplanationText
@@ -97,36 +111,38 @@ class GeminiRepository {
                         })
                     })
                 })
+                put("generationConfig", JSONObject().apply {
+                    put("maxOutputTokens", 220)
+                    put("temperature", 0.2)
+                })
             }
 
             val requestBody = jsonBody.toString().toRequestBody("application/json".toMediaType())
-            
-            // Try gemini-3.5-flash-lite
-            val url35lite = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=$currentKey"
-            val request35lite = Request.Builder().url(url35lite).post(requestBody).build()
+            val modelsToTry = listOf("gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-3.6-flash")
 
-            val response35lite = client.newCall(request35lite).execute()
-            if (response35lite.isSuccessful) {
-                val responseStr = response35lite.body?.string()
-                if (responseStr != null) {
-                    val text = parseGeminiResponseText(responseStr)
-                    if (!text.isNullOrBlank()) return@withContext text
-                }
-            }
+            for (model in modelsToTry) {
+                try {
+                    val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent"
+                    val request = Request.Builder()
+                        .url(url)
+                        .addHeader("x-goog-api-key", currentKey)
+                        .post(requestBody)
+                        .build()
 
-            // Fallback try gemini-3.5-flash
-            val url35 = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=$currentKey"
-            val request35 = Request.Builder().url(url35).post(requestBody).build()
-            val response35 = client.newCall(request35).execute()
-            if (response35.isSuccessful) {
-                val responseStr = response35.body?.string()
-                if (responseStr != null) {
-                    val text = parseGeminiResponseText(responseStr)
-                    if (!text.isNullOrBlank()) return@withContext text
+                    val response = client.newCall(request).execute()
+                    if (response.isSuccessful) {
+                        val responseStr = response.body?.string()
+                        if (responseStr != null) {
+                            val text = parseGeminiResponseText(responseStr)
+                            if (!text.isNullOrBlank()) return@withContext text
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Try next model
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            // Log generic exception without exposing key
         }
 
         return@withContext null

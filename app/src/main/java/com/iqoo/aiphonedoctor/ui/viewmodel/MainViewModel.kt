@@ -74,7 +74,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val initialGreeting = ChatMessage(
         id = "welcome-1",
         sender = "AI",
-        text = "Hello! I am your AI Phone Doctor. I continuously monitor your iQOO device telemetry to detect thermal stress, battery drain, and memory pressure. How can I help you today?",
+        text = "Hello! I am Optima. I continuously monitor your iQOO device telemetry to detect thermal stress, battery drain, and memory pressure. How can I help you today?",
         timestamp = "Just now"
     )
 

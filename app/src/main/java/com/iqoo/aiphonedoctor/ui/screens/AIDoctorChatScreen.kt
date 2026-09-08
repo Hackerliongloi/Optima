@@ -1,6 +1,8 @@
 package com.iqoo.aiphonedoctor.ui.screens
 
+import android.app.Application
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,18 +21,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
+import com.iqoo.aiphonedoctor.R
 import com.iqoo.aiphonedoctor.data.model.ChatMessage
 import com.iqoo.aiphonedoctor.ui.theme.*
 import com.iqoo.aiphonedoctor.ui.viewmodel.MainViewModel
-
-import android.app.Application
 
 @Preview(showBackground = true)
 @Composable
@@ -59,7 +62,7 @@ fun AIDoctorChatScreen(viewModel: MainViewModel) {
             .background(CyberBlack)
             .padding(16.dp)
     ) {
-        // Sticky Header: Robot Avatar + "Optima AI Assistant"
+        // Sticky Header: Optima Logo + "Optima AI Assistant"
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -68,16 +71,15 @@ fun AIDoctorChatScreen(viewModel: MainViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                Box(
+                Image(
+                    painter = painterResource(id = R.drawable.app_logo),
+                    contentDescription = "Optima Logo",
                     modifier = Modifier
                         .size(42.dp)
                         .clip(CircleShape)
-                        .background(IqooOrange.copy(alpha = 0.15f))
                         .border(1.dp, IqooOrange, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "🤖", fontSize = 22.sp)
-                }
+                    contentScale = ContentScale.Crop
+                )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = "Optima AI Assistant",
@@ -240,12 +242,23 @@ fun ChatMessageBubble(msg: ChatMessage, onTriggerFix: () -> Unit) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            text = "🤖 AI Doctor",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = AccentCyan
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(id = R.drawable.app_logo),
+                                contentDescription = "Optima Logo",
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Optima AI Doctor",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = AccentCyan
+                            )
+                        }
                         Text(
                             text = msg.timestamp,
                             fontSize = 10.sp,

@@ -222,7 +222,7 @@ class RealTelemetryProvider(private val context: Context) {
             packageName.contains("genshin") -> "Genshin Impact"
             packageName.contains("camera") -> "Camera"
             packageName.contains("gallery") || packageName.contains("photos") -> "Photos"
-            packageName.contains("aiphonedoctor") -> "Optima AI Doctor"
+            packageName.contains("aiphonedoctor") -> "Optima"
             else -> packageName.substringAfterLast('.').replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
         }
     }
